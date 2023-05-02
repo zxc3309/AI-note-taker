@@ -1,0 +1,39 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+Created on Thu Apr  6 17:48:23 2023
+
+@author: ce
+"""
+
+import openai 
+
+with open('Ed-and-AppWorks.txt','r', encoding='utf-8')as fh:
+    tmp = fh.read()
+    itemlist = tmp.split(',')
+
+
+itemlist = str(itemlist)
+openai.api_key = 'you openAI API Key'
+
+start_idx = 0
+with open('output.txt', 'w', encoding='utf-8') as output_file:
+    while start_idx < len(itemlist):
+        end_idx = min(start_idx + 4000, len(itemlist))
+        sub_list = itemlist[start_idx:end_idx]
+        
+        response = openai.ChatCompletion.create(
+            model="gpt-3.5-turbo",
+            messages=[
+                {"role": "system", "content": "You are a chatbot"},
+                {"role": "user", "content": f"Rewrite the transcript into bullet point and include every detail like number, people or company name. Ignore timestamp.：{sub_list}"}
+            ]
+        )
+        
+        result = ''
+        for choice in response.choices:
+            result += choice.message.content
+        output_file.write(result)
+        start_idx = end_idx
+        
+print("Done")
